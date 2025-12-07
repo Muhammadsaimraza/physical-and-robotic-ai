@@ -1,0 +1,130 @@
+---
+id: week-6-gazebo-physics-and-sensors
+title: 'Week 6: Gazebo Simulation'
+sidebar_label: 'Week 6: Gazebo Simulation'
+---
+
+# Week 6: Gazebo Simulation
+
+Welcome to the world of the Digital Twin. Simulation is one of the most powerful tools in a roboticist's toolkit. It allows us to test algorithms, train AI models, and design robots in a safe, fast, and cost-effective virtual environment before ever touching physical hardware. This week, we introduce **Gazebo**, the go-to open-source simulator for the robotics community, and its integration with ROS 2.
+
+## Setting up Gazebo with ROS 2
+
+Gazebo is a 3D rigid-body simulator that can accurately and efficiently simulate populations of robots in complex indoor and outdoor environments. The `ros_gz_sim` package provides the bridge between Gazebo and ROS 2, allowing us to seamlessly pass messages and control our simulated robots just as we would a physical one.
+
+To get started, you'll need to install the Gazebo simulator and the ROS 2 integration packages:
+```bash
+sudo apt-get install gz-garden
+sudo apt-get install ros-humble-ros-gz-sim
+```
+
+To test the integration, you can run a pre-made demo world:
+```bash
+ros2 launch ros_gz_sim gz_sim.launch.py gz_args:="shapes.sdf"
+```
+This should launch the Gazebo client and display a world with several simple shapes.
+
+## Configuring a World
+
+A Gazebo "world" is an SDF (Simulation Description Format) file that contains everything in a simulation: robots, lights, physics, and more.
+
+### Physics Properties
+
+You can define global physics properties inside the `<world>` tag of your SDF file.
+
+```xml title="my_world.sdf"
+<sdf version="1.6">
+  <world name="default">
+    <!-- Set up the physics engine -->
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <!-- Set gravity for the world -->
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- Add a ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Add a light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+  </world>
+</sdf>
+```
+-   **`<physics>`**: Configures the physics engine (we're using ODE - Open Dynamics Engine).
+-   **`<gravity>`**: Sets the gravitational acceleration vector. The value `-9.81` on the Z-axis simulates Earth's gravity.
+-   **`<include>`**: Allows you to insert pre-made models, like a ground plane and a sun for lighting, into your world.
+
+## Simulating Common Sensors
+
+The real power of Gazebo comes from its ability to simulate a wide variety of robot sensors. A sensor is just a plugin that is attached to a link in your robot's URDF or SDF model. This plugin generates data and publishes it to a ROS 2 topic.
+
+### 1. LiDAR (Laser Scanner)
+
+A LiDAR sensor measures distance by illuminating a target with a laser and measuring the reflected light. It's used for mapping, localization, and obstacle avoidance.
+
+Here's how to add a GPU-accelerated LiDAR sensor plugin to a link in your robot's model file:
+
+```xml
+<sensor name="gpu_lidar" type="gpu_lidar">
+  <topic>/lidar</topic>
+  <update_rate>10</update_rate>
+  <ray>
+    <scan>
+      <horizontal>
+        <samples>360</samples>
+        <resolution>1</resolution>
+        <min_angle>-3.14</min_angle>
+        <max_angle>3.14</max_angle>
+      </horizontal>
+    </scan>
+    <range>
+      <min>0.08</min>
+      <max>10.0</max>
+      <resolution>0.01</resolution>
+    </range>
+  </ray>
+  <visualize>true</visualize>
+</sensor>
+```
+-   **`<topic>`**: The ROS 2 topic where the `LaserScan` messages will be published (`/lidar`).
+-   **`<update_rate>`**: How many scans per second to generate.
+-   **`<scan>`**: Defines the properties of the laser scan, such as the number of samples and the angular range.
+-   **`<range>`**: The minimum and maximum distance the LiDAR can see.
+
+### 2. Depth Camera
+
+A depth camera is a sensor that provides the distance to objects for each pixel in an image. It's like a regular camera but with per-pixel depth information.
+
+Here's how to add a depth camera plugin:
+```xml
+<sensor name="depth_camera" type="depth_camera">
+  <topic>/depth_camera</topic>
+  <update_rate>30</update_rate>
+  <camera>
+    <horizontal_fov>1.047</horizontal_fov>
+    <image>
+      <width>640</width>
+      <height>480</height>
+      <format>R_FLOAT32</format>
+    </image>
+    <clip>
+      <near>0.1</near>
+      <far>10.0</far>
+    </clip>
+  </camera>
+  <visualize>true</visualize>
+</sensor>
+```
+-   **`<topic>`**: The ROS 2 topic where the depth image will be published.
+-   **`<camera>`**: Defines the intrinsic properties of the camera, like field of view (`horizontal_fov`) and image resolution (`width`, `height`).
+-   **`<clip>`**: The near and far clipping planes. Any objects outside this range will not be rendered.
+
+By adding these sensor plugins to your robot model, you can generate realistic sensor data that can be used to test your perception, navigation, and manipulation algorithms entirely within the simulator. This ability to develop and test in a digital twin before deploying to a physical robot is a cornerstone of modern robotics development.

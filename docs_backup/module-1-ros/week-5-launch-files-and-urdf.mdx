@@ -1,0 +1,134 @@
+---
+id: week-5-launch-files-and-urdf
+title: 'Week 5: Launch Files and URDF'
+sidebar_label: 'Week 5: Launch & URDF'
+---
+
+# Week 5: Launch Files and URDF
+
+In the previous weeks, we learned to run our nodes one by one from the terminal. As our robotic systems grow in complexity, this becomes tedious and error-prone. This week, we introduce two critical tools for managing complexity: **Launch files** for starting multiple nodes and the **Unified Robot Description Format (URDF)** for describing the robot's physical structure.
+
+## ROS 2 Launch Files
+
+A ROS 2 **Launch file** is a script that allows you to start and configure a collection of nodes simultaneously. Instead of typing multiple `ros2 run` commands in different terminals, you can define the entire system in a single Python script.
+
+### Why use Launch Files?
+- **Automation:** Start your entire robot software stack with a single command.
+- **Configuration:** Pass parameters and remappings to your nodes at startup.
+- **Lifecycle Management:** Control the state of your nodes (e.g., configuring, activating, deactivating).
+
+### Example Python Launch File
+
+Let's create a launch file to start our `talker` and `listener` nodes from last week.
+
+Create a `launch` directory in your package and add the following file:
+
+```python title="my_first_package/launch/talker_listener.launch.py"
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='my_first_package',
+            executable='talker',
+            name='my_talker'
+        ),
+        Node(
+            package='my_first_package',
+            executable='listener',
+            name='my_listener'
+        ),
+    ])
+```
+**Explanation:**
+- We import `LaunchDescription` and `Node`.
+- The `generate_launch_description` function is the entry point for a launch file.
+- We create a `LaunchDescription` object and add two `Node` actions to it.
+- Each `Node` action specifies the `package` and `executable` to run. We can also give it a unique `name`.
+
+To run this launch file, execute:
+```bash
+ros2 launch my_first_package talker_listener.launch.py
+```
+You will see both the talker and listener nodes start up and begin communicating.
+
+## Unified Robot Description Format (URDF)
+
+While launch files describe the *software* processes, URDF describes the *physical* robot. **URDF** is an XML format used to model the kinematic and dynamic properties of a robot.
+
+A URDF file describes the robot as a tree of **links** and **joints**.
+-   **Link:** A rigid part of the robot (e.g., a limb, a torso, a gripper). A link has inertial, visual, and collision properties.
+-   **Joint:** Connects two links together. A joint defines the type of motion allowed between the links (e.g., revolute, prismatic, fixed).
+
+### URDF for a Simple Humanoid
+
+Let's define a very simple humanoid structure with a torso, a head, and an arm.
+
+```xml title="simple_humanoid.urdf"
+<?xml version="1.0"?>
+<robot name="simple_humanoid">
+
+  <!-- Base Link: The Torso -->
+  <link name="torso">
+    <visual>
+      <geometry>
+        <box size="0.4 0.6 0.2"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Head Link -->
+  <link name="head">
+    <visual>
+      <geometry>
+        <sphere radius="0.15"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Neck Joint: Connects Torso to Head -->
+  <joint name="neck_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="head"/>
+    <origin xyz="0 0 0.175" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+  </joint>
+
+  <!-- Right Arm Link -->
+  <link name="right_arm">
+    <visual>
+      <geometry>
+        <cylinder length="0.5" radius="0.05"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!-- Shoulder Joint: Connects Torso to Right Arm -->
+  <joint name="shoulder_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="right_arm"/>
+    <origin xyz="0 -0.325 0" rpy="0 1.57 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="3"/>
+  </joint>
+
+</robot>
+```
+**Explanation:**
+- **Links:** We define three links: `torso`, `head`, and `right_arm`. Each has a `<visual>` tag describing its shape (`<geometry>`) and color (`<material>`).
+- **Joints:** We define two joints: `neck_joint` and `shoulder_joint`.
+    - `parent` and `child` tags define the tree structure.
+    - `origin` defines the transform from the parent link's origin to the joint's origin.
+    - `axis` defines the axis of rotation for revolute joints.
+    - `limit` specifies the joint's range of motion.
+
+This URDF file can be used by tools like RViz to visualize the robot and by simulators like Gazebo to model its physics. It is the foundation for robot state publishing, kinematics, and motion planning.

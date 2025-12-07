@@ -1,0 +1,33 @@
+---
+id: week-2-hardware-and-systems
+title: 'Week 2: Hardware and Systems'
+sidebar_label: 'Week 2: Hardware & Systems'
+---
+
+# Week 2: Hardware and Systems
+
+A successful venture into Physical AI requires a robust hardware foundation. This week, we detail the specific, mandatory hardware configurations for both your development environment (the Digital Twin) and your physical robot (the Edge Kit). Adherence to these specifications is critical for software compatibility and optimal performance throughout the course.
+
+## Digital Twin Workstation Requirements
+
+Your Digital Twin Workstation is the powerhouse where you will simulate robotic systems, train complex AI models, and debug your code before deploying it to a physical device. The demands of modern, high-fidelity simulation require significant computational power, especially in the GPU and RAM departments.
+
+| Component           | Minimum Requirement               | **Recommended for Optimal Performance**   |
+| ------------------- | --------------------------------- | ----------------------------------------- |
+| **GPU**             | NVIDIA GeForce RTX 3080 (10GB)    | **NVIDIA GeForce RTX 4080 (16GB) or higher** |
+| **CPU**             | Intel Core i7-12700K or AMD Ryzen 7 7700X | **Intel Core i9-13900K or AMD Ryzen 9 7950X** |
+| **RAM**             | 32 GB DDR4 3200MHz                | **64 GB DDR5 5200MHz**                      |
+| **Storage**         | 1TB NVMe SSD                      | 2TB NVMe Gen4 SSD                         |
+| **Operating System**| Ubuntu 22.04 LTS (Dual Boot)      | Dedicated Ubuntu 22.04 LTS Installation   |
+
+## Physical AI Edge Kit Requirements
+
+The Physical AI Edge Kit comprises the essential sensory and computational components that will form the "brain" and "senses" of your robot. These items have been carefully selected for their powerful performance, rich data streams, and strong support within the ROS 2 and NVIDIA Isaac ecosystems.
+
+### Core Components
+
+| Component               | Item                                     | Critical Purpose                                              |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| **Compute Module**      | [NVIDIA Jetson Orin Nano Developer Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin-nano-developer-kit/)    | Provides high-performance, power-efficient AI inference at the edge, running the core robotics software stack. |
+| **Depth Camera**        | [Intel RealSense Depth Camera D435i](https://www.intelrealsense.com/depth-camera-d435i/)       | Delivers synchronized RGB, stereo depth, and IMU data, crucial for 3D perception, mapping (V-SLAM), and navigation. |
+| **Microphone Array**    | [ReSpeaker Mic Array v2.0](https://www.seeedstudio.com/ReSpeaker-Mic-Array-v2-0-p-3053.html)               | Enables voice command capabilities and sound localization, forming the basis for conversational AI and interaction. |

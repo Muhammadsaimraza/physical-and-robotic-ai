@@ -1,0 +1,55 @@
+---
+id: week-11-humanoid-kinematics-and-dynamics
+title: 'Week 11: Humanoid Kinematics & Dynamics'
+sidebar_label: 'Week 11: Kinematics & Dynamics'
+---
+
+# Week 11: Humanoid Kinematics & Dynamics
+
+We have assembled the brain and senses of our robot. Now we must give it the gift of movement. This week, we dive into the core principles that govern how humanoid robots move and, critically, how they stay balanced: **kinematics** and **dynamics**.
+
+## The Challenge of Bipedal Locomotion
+
+Walking on two legs is something most humans do without a second thought, but for a robot, it is an incredibly complex dynamic balancing act. Unlike a wheeled robot, which is always stable, a bipedal robot is an inverted pendulum, constantly falling and catching itself with every step.
+
+Understanding and controlling this "controlled fall" is the essence of bipedal locomotion.
+
+## Kinematics: The Geometry of Motion
+
+Kinematics is the study of motion without considering the forces that cause it. It's about the geometry of the robot's structure. For a humanoid leg, there are two key problems to solve:
+
+### 1. Forward Kinematics (FK)
+
+**"Given a set of joint angles, where is the foot?"**
+
+Forward kinematics is the easier of the two problems. If we know the angle of the hip, knee, and ankle joints, and we know the length of the thigh and shin, we can use simple trigonometry to calculate the precise 3D position and orientation of the foot relative to the robot's torso.
+
+This is useful for determining the robot's current state, but for planning a movement, we need to solve the opposite problem.
+
+### 2. Inverse Kinematics (IK)
+
+**"To place the foot at a specific target position, what should the joint angles be?"**
+
+Inverse kinematics is a much harder problem. Given a desired foot position (e.g., a spot on the floor to step on), we must calculate the required angles for the hip, knee, and ankle.
+
+For a multi-jointed leg, there are often multiple, sometimes infinite, solutions to the IK problem. Choosing the "best" solution involves considering factors like joint limits, energy efficiency, and obstacle avoidance. IK solvers are a key component of any motion planning system for a legged robot.
+
+## Dynamics: The Physics of Motion
+
+Dynamics adds the "why" to the "what" of motion. It considers the forces and torques involved in moving the robot. For a walking robot, the most important dynamic concept is **balance**.
+
+### Center of Mass (CoM)
+
+The **Center of Mass** is the single point where the entire mass of the robot can be considered to be concentrated. To stay balanced, a humanoid robot must keep its CoM within its **support polygon**—the area on the ground formed by its feet. If the CoM moves outside this area, the robot will tip over.
+
+A key principle of humanoid design is to have a **low center of mass**. This makes the robot inherently more stable and easier to balance, much like how a race car's low profile helps it stay on the track.
+
+### Zero Moment Point (ZMP)
+
+The **Zero Moment Point (ZMP)** is a more advanced concept used in dynamic balance control. The ZMP is the point on the ground where the net moment (or torque) from gravity and inertia is zero.
+
+The rule for dynamic stability is simple: **the ZMP must always remain within the support polygon.**
+
+By controlling the robot's joints, a walking algorithm is constantly manipulating the location of the ZMP. When the robot lifts a foot, the support polygon shrinks to the area of the single supporting foot. The controller must move the ZMP to stay within this tiny area. A step is essentially a controlled process of moving the ZMP from one support polygon to the next.
+
+Understanding the interplay between kinematics (where to put the foot) and dynamics (how to stay balanced while doing it) is the fundamental challenge of creating a walking humanoid robot.

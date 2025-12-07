@@ -1,0 +1,79 @@
+---
+id: week-12-conversational-robotics
+title: 'Week 12: Conversational Robotics'
+sidebar_label: 'Week 12: Conversational AI'
+---
+
+# Week 12: Conversational Robotics
+
+In this final module, we give our robot a voice and the ability to understand ours. **Conversational Robotics** is the art and science of creating robots that can interact with humans using natural language. This week, we will design and build a complete **Voice-to-Action pipeline**, allowing our robot to understand a spoken command and execute a corresponding physical task.
+
+## The Voice-to-Action Pipeline
+
+Our goal is to translate a high-level human command, like "get me the water bottle," into a sequence of low-level robot actions. Our pipeline will have three main stages:
+
+1.  **Speech-to-Text (STT):** Convert spoken audio into written text.
+2.  **Cognitive Planning (Text-to-Plan):** Use a Large Language Model (LLM) to understand the text and generate a high-level plan.
+3.  **Plan-to-Action:** Translate the high-level plan into a sequence of specific ROS 2 actions, services, or topics.
+
+```mermaid
+graph TD
+    A[Human Voice Command] --> B{1. Speech-to-Text};
+    B -- "Text Transcript" --> C{2. Cognitive Planning (LLM)};
+    C -- "JSON Plan" --> D{3. Plan-to-Action};
+    D -- "ROS 2 Actions/Services" --> E[Robot Execution];
+```
+
+## 1. Speech-to-Text with OpenAI Whisper
+
+The first step is to capture the user's voice command using a microphone (like the ReSpeaker array on our edge kit) and transcribe it into text. We will use **OpenAI's Whisper** for this task.
+
+Whisper is a state-of-the-art speech recognition model that is highly robust to background noise and can handle a wide variety of accents.
+
+Our ROS 2 node will:
+1.  Listen for audio from the microphone.
+2.  When it detects speech, it will record a short audio clip.
+3.  This audio clip is sent to the Whisper API (or a locally run instance of Whisper).
+4.  Whisper returns the transcribed text.
+5.  The text is then published to a ROS 2 topic, e.g., `/transcribed_text`.
+
+## 2. Cognitive Planning with a Large Language Model (LLM)
+
+Once we have the text, we need to understand its *intent*. This is where the power of a Large Language Model (LLM), like GPT-4, comes in. We will treat the LLM as our robot's cognitive engine.
+
+We will create a ROS 2 node that subscribes to the `/transcribed_text` topic. When it receives a command, it will construct a carefully designed prompt to send to the LLM.
+
+**Example Prompt:**
+```
+You are the planning brain for a service robot. A user has given you a command. Your job is to translate this command into a high-level, step-by-step plan. The available actions are: 'GOTO(location)', 'FIND(object)', 'PICKUP(object)', 'GIVE(person)'. The known locations are: 'kitchen', 'living_room', 'desk'.
+
+User command: "Hey robot, can you bring me the water bottle from the kitchen?"
+
+Output your plan in JSON format.
+```
+
+**Expected LLM Output:**
+```json
+{
+  "plan": [
+    { "action": "GOTO", "parameters": { "location": "kitchen" } },
+    { "action": "FIND", "parameters": { "object": "water_bottle" } },
+    { "action": "PICKUP", "parameters": { "object": "water_bottle" } },
+    { "action": "GOTO", "parameters": { "location": "user_location" } },
+    { "action": "GIVE", "parameters": { "person": "user" } }
+  ]
+}
+```
+By providing the LLM with a clear description of its role and the available actions (a technique called "prompt engineering"), we can get it to reliably generate structured, machine-readable plans.
+
+## 3. Plan-to-Action Execution
+
+The final piece of the puzzle is a node that translates the JSON plan into actual robot behavior. This "Action Executor" node will:
+1.  Subscribe to the topic where the JSON plan is published.
+2.  Parse the plan and iterate through the steps.
+3.  For each step, it will call the appropriate ROS 2 Action Server. For example:
+    -   `{"action": "GOTO", ...}` triggers a call to the Nav2 `NavigateToPose` action server.
+    -   `{"action": "FIND", ...}` triggers a call to a custom perception action server that uses the robot's camera to find an object.
+    -   `{"action": "PICKUP", ...}` triggers a call to a manipulation action server that controls the robot's arm.
+
+This modular, three-part pipeline provides a powerful and flexible way to connect natural language to robotic action. It cleanly separates the problems of speech recognition, high-level planning, and low-level control, allowing us to use the best tools for each job. By combining the perceptual power of Whisper with the cognitive power of an LLM, we can create robots that are far more intuitive and natural for humans to interact with.

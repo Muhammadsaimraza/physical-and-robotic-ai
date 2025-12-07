@@ -1,0 +1,168 @@
+---
+id: week-4-ros2-packages-and-python
+title: 'Week 4: ROS 2 Packages in Python'
+sidebar_label: 'Week 4: Python Packages'
+---
+
+# Week 4: ROS 2 Packages in Python
+
+Last week, we learned about the high-level architecture of ROS 2. This week, we get our hands dirty and create our first ROS 2 package, containing simple publisher and subscriber nodes written in Python.
+
+## What is a ROS 2 Package?
+
+A **package** is the fundamental unit of organization in ROS 2. It's a directory containing your node's source code, configuration files, launch files, and a `package.xml` file. Packages are the building blocks that you can share and reuse.
+
+## Creating a ROS 2 Package
+
+Let's create a package named `my_first_package`.
+
+1.  **Navigate to your workspace:**
+    Open a terminal and navigate to the `src` directory of your ROS 2 workspace (e.g., `~/ros2_ws/src`).
+
+2.  **Run the package creation command:**
+    Use the `ros2 pkg create` command to create a new package.
+
+    ```bash
+    ros2 pkg create --build-type ament_python --node-name my_node my_first_package
+    ```
+
+    -   `--build-type ament_python`: Specifies that we are creating a Python package.
+    -   `--node-name my_node`: Creates a simple "Hello World" executable for us.
+    -   `my_first_package`: The name of our package.
+
+This command will generate a new directory `my_first_package` with the following structure:
+
+```
+my_first_package/
+├── package.xml
+├── setup.py
+├── setup.cfg
+└── my_first_package/
+    ├── __init__.py
+    └── my_node.py
+```
+
+## Understanding the Key Files
+
+### `package.xml`
+
+This file contains the **metadata** about your package. It includes the package name, version, description, maintainer information, and dependencies.
+
+-   `<name>`: The name of the package.
+-   `<version>`: The version number.
+-   `<description>`: A brief description.
+-   `<maintainer>`: Your name and email.
+-   `<license>`: The license (e.g., Apache-2.0).
+-   `<depend>`: A list of other packages that this package depends on. For a simple Python node, you'll need `rclpy`.
+
+### `setup.py`
+
+This is a standard Python setup script. It tells `colcon` (the ROS 2 build tool) how to build and install your package. A key part of this file is the `entry_points` section, which registers your nodes as executables.
+
+```python
+entry_points={
+    'console_scripts': [
+        'my_node = my_first_package.my_node:main',
+        'talker = my_first_package.publisher_member_function:main',
+        'listener = my_first_package.subscriber_member_function:main',
+    ],
+},
+```
+This tells ROS 2 that when you run `ros2 run my_first_package talker`, it should execute the `main` function in the `publisher_member_function.py` file.
+
+## "Hello World": Publisher and Subscriber
+
+Let's create a classic "talker" (publisher) and "listener" (subscriber).
+
+### 1. The Publisher (`publisher_member_function.py`)
+
+Create a new file in the `my_first_package/my_first_package` directory.
+
+```python title="my_first_package/my_first_package/publisher_member_function.py"
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = 'Hello World: %d' % self.i
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.i += 1
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_publisher = MinimalPublisher()
+    rclpy.spin(minimal_publisher)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+**Explanation:**
+- We create a class `MinimalPublisher` that inherits from `Node`.
+- In the constructor, we create a publisher for messages of type `String` on the topic named `'topic'`.
+- We create a timer that calls the `timer_callback` function every 0.5 seconds.
+- In the callback, we create a `String` message, publish it, and log it.
+
+### 2. The Subscriber (`subscriber_member_function.py`)
+
+Create another new file.
+
+```python title="my_first_package/my_first_package/subscriber_member_function.py"
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MinimalSubscriber(Node):
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+
+    def listener_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_subscriber = MinimalSubscriber()
+    rclpy.spin(minimal_subscriber)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+**Explanation:**
+- We create a `MinimalSubscriber` node.
+- In the constructor, we create a subscription to the `'topic'` topic.
+- We specify `listener_callback` as the function to be executed whenever a message is received.
+- The callback simply logs the received message data.
+
+## Building and Running
+
+1.  **Build the package:**
+    Navigate to the root of your workspace (`~/ros2_ws`) and run `colcon build`.
+
+2.  **Source your workspace:**
+    In a new terminal, run `source install/setup.bash`.
+
+3.  **Run the nodes:**
+    Open two terminals. Source your workspace in both.
+    - In the first terminal, run the talker: `ros2 run my_first_package talker`
+    - In the second terminal, run the listener: `ros2 run my_first_package listener`
+
+You should see the talker publishing messages and the listener receiving them! Congratulations, you've created your first ROS 2 publisher and subscriber.
