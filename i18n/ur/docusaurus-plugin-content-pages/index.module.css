@@ -1,0 +1,108 @@
+.heroBanner {
+  padding: 8rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+  color: #fff;
+}
+
+.heroTitle {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.heroSubtitle {
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.heroDescription {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+.journeySection, .whyMattersSection, .startSection, .ctaSection {
+    text-align: center;
+    padding: 4rem 0;
+    background-color: #0d0d0d;
+}
+
+.journeySection h2, .whyMattersSection h2, .startSection h2, .ctaSection h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.journeySection h3, .whyMattersSection h3, .startSection h3, .ctaSection h3 {
+    font-size: 1.8rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: var(--ifm-color-primary-light);
+}
+
+.modulesSection, .featuresSection, .hardwareSection {
+    padding: 4rem 0;
+}
+
+.modulesGrid, .featuresGrid, .hardwareGrid {
+    display: grid;
+    gap: 2rem;
+}
+
+.modulesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.featuresGrid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.hardwareGrid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.moduleCard, .featureCard, .hardwareCard {
+    background: #1a1a1a;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid #333;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.moduleCard:hover, .featureCard:hover, .hardwareCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.moduleIcon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.moduleCard h4, .featureCard h4, .hardwareCard h4 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--ifm-color-primary);
+}
+
+.moduleCard h5, .hardwareCard h5 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.moduleCard ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    color: #ccc;
+}
+
+.hardwareTier {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--ifm-color-primary);
+    margin-bottom: 1rem;
+}

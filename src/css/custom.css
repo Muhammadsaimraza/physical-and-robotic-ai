@@ -6,26 +6,188 @@
 
 /* You can override the default Infima variables here. */
 
-[data-theme='dark'] {
-  --ifm-background-color: #000000;
-  --ifm-background-surface-color: #1a1a1a;
-  --ifm-color-primary: #00a8e8; /* A vibrant blue */
+:root {
+  --ifm-color-primary: #00a8e8; /* Bright Blue/Cyan */
   --ifm-color-primary-dark: #0097d1;
   --ifm-color-primary-darker: #008ac5;
   --ifm-color-primary-darkest: #0073a3;
   --ifm-color-primary-light: #1ab4f0;
   --ifm-color-primary-lighter: #28bcf3;
   --ifm-color-primary-lightest: #49c8f6;
-  --ifm-font-color-base: #ffffff;
+
+  --ifm-color-text: #e5e5e5; /* Light gray for main text */
+  --ifm-color-text-alt: #b3b3b3; /* Lighter gray for secondary text */
+
+  /* Custom variables for theme */
+  --custom-background-start: #0d1117;
+  --custom-background-end: #000000;
+  --custom-color-dark-surface: #161b22; /* Slightly lighter for elements */
+  --custom-color-left-sidebar-selected: #21262d;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-background-color: var(--custom-color-dark-surface);
+  --ifm-background-surface-color: var(--custom-color-dark-surface);
+  --ifm-font-color-base: var(--ifm-color-text);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  /* Navbar specific colors */
+  --doc-sidebar-background-color: var(--custom-background-start);
+  --ifm-navbar-background-color: var(--custom-background-start);
 }
 
 html[data-theme='dark'] {
-  background-color: #000000;
+  background-image: linear-gradient(180deg, var(--custom-background-start), var(--custom-background-end));
+  background-attachment: fixed;
 }
 
 body {
-  background-color: var(--ifm-background-color);
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Clean, modern sans-serif */
+  background-color: transparent; /* Let the html background show through */
   color: var(--ifm-font-color-base);
+  line-height: 1.7; /* Good line spacing for readability */
 }
 
+/* Typography adjustments */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: #ffffff;
+  font-weight: 600; /* Stylish, not overly bold */
+}
+
+h1 {
+  font-size: 2.8rem; /* More stylish, less huge */
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary); /* Use accent color for main title */
+  letter-spacing: 1.5px;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ifm-color-primary-dark);
+}
+
+h2 {
+  font-size: 2rem;
+  text-align: left;
+  color: #ffffff;
+  border-bottom: 1px solid var(--custom-color-dark-surface);
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  text-transform: uppercase; /* Capitalized headings */
+  color: var(--ifm-color-primary);
+  margin-top: 1.5rem;
+}
+
+/* Specific styling for the subtitle beneath the main title */
+.markdown h2:first-of-type {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--ifm-color-text-alt);
+  margin: -1rem 0 2rem 0;
+  text-align: center;
+  border-bottom: none;
+}
+
+/* Links */
+a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--ifm-color-primary-light);
+  text-decoration: underline;
+}
+
+/* Main Layout & Sidebars */
+.main-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+main.col {
+  flex-grow: 1;
+}
+
+aside.col.col--3 {
+  order: -1; /* Move left sidebar to the left */
+}
+
+.theme-doc-toc-mobile {
+  display: none; /* Hide mobile TOC on desktop */
+}
+
+/* Three-column layout */
+.docPage_AV6E { /* A generic class name for the doc page container */
+  display: flex;
+}
+
+.docPage_AV6E > .col:first-child { /* Left Sidebar */
+  flex: 0 0 20%;
+  max-width: 20%;
+}
+
+.docPage_AV6E > .col:nth-child(2) { /* Main Content */
+  flex: 0 0 60%;
+  max-width: 60%;
+  padding: 0 2rem;
+}
+
+.docPage_AV6E > .col:last-child { /* Right Sidebar (TOC) */
+  flex: 0 0 20%;
+  max-width: 20%;
+  order: 3;
+}
+
+/* Sidebar styling */
+.menu__list-item-link {
+  color: var(--ifm-color-text-alt);
+  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+
+.menu__list-item-link:hover {
+  background-color: var(--custom-color-dark-surface);
+  color: #ffffff;
+}
+
+.menu__list-item-link--active {
+  background-color: var(--custom-color-left-sidebar-selected);
+  color: var(--ifm-color-primary);
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: var(--custom-background-start);
+  border-bottom: 1px solid var(--custom-color-dark-surface);
+  padding: 0 2rem;
+}
+
+.navbar__title {
+  color: var(--ifm-color-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.navbar__link {
+  color: var(--ifm-color-text);
+  font-weight: 500;
+}
+
+.navbar__link:hover {
+  color: var(--ifm-color-primary);
+}
+
+/* Content Area */
+.theme-doc-markdown {
+  background-color: transparent;
+  color: var(--ifm-font-color-base);
+  padding: 2rem;
+}
